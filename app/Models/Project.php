@@ -18,12 +18,23 @@ class Project extends Model
         'sort_order',
     ];
 
-    protected $casts = [
-        'image'       => 'array',
-        'tags'        => 'array',
-        'has_details' => 'boolean',
-        'sort_order'  => 'integer',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'has_details' => 'boolean',
+            'sort_order'  => 'integer',
+        ];
+    }
+
+    public function getImageAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    public function getTagsAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
 
     public function detail(): HasOne
     {

@@ -100,9 +100,9 @@ class ProjectController extends Controller
             $project = Project::create([
                 'title'       => $request->title,
                 'description' => $request->description,
-                'image'       => empty($imagePaths) ? [] : $imagePaths,
+                'image'       => json_encode(empty($imagePaths) ? [] : $imagePaths),
                 'thumbnail'   => $thumbnailPath,
-                'tags'        => $tags,
+                'tags'        => json_encode($tags),
                 'has_details' => $hasDetails,
                 'sort_order'  => $request->input('sort_order', Project::max('sort_order') + 1),
             ]);
@@ -179,7 +179,7 @@ class ProjectController extends Controller
             }
 
             if ($hasImageUpdate) {
-                $updateData['image'] = array_slice($imagePaths, 0, 7);
+                $updateData['image'] = json_encode(array_slice($imagePaths, 0, 7));
             }
 
             if ($request->hasFile('thumbnail')) {
@@ -190,7 +190,7 @@ class ProjectController extends Controller
 
             if ($request->has('tags')) {
                 $tags = $request->tags;
-                $updateData['tags'] = is_string($tags) ? (json_decode($tags, true) ?? []) : $tags;
+                $updateData['tags'] = json_encode(is_string($tags) ? (json_decode($tags, true) ?? []) : $tags);
             }
 
             if ($request->has('has_details')) {
