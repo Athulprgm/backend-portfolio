@@ -20,7 +20,8 @@ class ProjectController extends Controller
      */
     public function index(): JsonResponse
     {
-        $projects = Project::orderBy('sort_order')
+        $projects = Project::select(['id', 'title', 'level', 'description', 'image', 'thumbnail', 'tags', 'has_details', 'sort_order'])
+            ->orderBy('sort_order')
             ->get()
             ->map(fn (Project $p) => $this->cardShape($p));
 
@@ -33,7 +34,9 @@ class ProjectController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $project = Project::with('detail')->findOrFail($id);
+        $project = Project::with('detail')
+            ->select(['id', 'title', 'level', 'description', 'image', 'thumbnail', 'tags', 'has_details', 'sort_order'])
+            ->findOrFail($id);
         return response()->json($this->fullShape($project));
     }
 
@@ -46,11 +49,15 @@ class ProjectController extends Controller
     public function store(Request $request): JsonResponse
     {
         $v = Validator::make($request->all(), [
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'image'       => 'nullable',
-            'thumbnail'   => 'nullable',
-            'sort_order'  => 'integer',
+            'title'          => 'required|string|max:255',
+            'description'    => 'required|string',
+            'image'          => 'nullable',
+            'thumbnail'      => 'nullable',
+            'sort_order'     => 'nullable|integer',
+            'tags'           => 'nullable',
+            'existingImages' => 'nullable',
+            'imageFiles.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'has_details'    => 'nullable|boolean',
         ]);
 
         if ($v->fails()) {
@@ -129,6 +136,20 @@ class ProjectController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
+        $v = Validator::make($request->all(), [
+            'title'          => 'nullable|string|max:255',
+            'description'    => 'nullable|string',
+            'sort_order'     => 'nullable|integer',
+            'tags'           => 'nullable',
+            'existingImages' => 'nullable',
+            'imageFiles.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'has_details'    => 'nullable|boolean',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
         $project = Project::with('detail')->findOrFail($id);
 
         DB::beginTransaction();
@@ -225,7 +246,8 @@ class ProjectController extends Controller
      */
     public function adminIndex(): JsonResponse
     {
-        $projects = Project::orderBy('sort_order')
+        $projects = Project::select(['id', 'title', 'level', 'description', 'image', 'thumbnail', 'tags', 'has_details', 'sort_order', 'created_at'])
+            ->orderBy('sort_order')
             ->get()
             ->map(fn (Project $p) => [
                 ...$this->cardShape($p),
