@@ -99,7 +99,7 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'admin_api_key' => env('ADMIN_API_KEY', 'change-me'),
+    'admin_api_key' => env('ADMIN_API_KEY', 'portfolio-admin-2026'),
 
     'previous_keys' => [
         ...array_filter(
