@@ -56,8 +56,9 @@ class ProjectController extends Controller
             'sort_order'     => 'nullable|integer',
             'tags'           => 'nullable',
             'existingImages' => 'nullable',
-            'imageFiles.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'has_details'    => 'nullable|boolean',
+            'imageFiles'     => 'nullable',
+            'imageFiles.*'   => 'nullable',
+            'has_details'    => 'nullable',
         ]);
 
         if ($v->fails()) {
@@ -142,8 +143,9 @@ class ProjectController extends Controller
             'sort_order'     => 'nullable|integer',
             'tags'           => 'nullable',
             'existingImages' => 'nullable',
-            'imageFiles.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'has_details'    => 'nullable|boolean',
+            'imageFiles'     => 'nullable',
+            'imageFiles.*'   => 'nullable',
+            'has_details'    => 'nullable',
         ]);
 
         if ($v->fails()) {
