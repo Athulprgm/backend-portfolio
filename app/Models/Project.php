@@ -9,14 +9,17 @@ class Project extends Model
 {
     protected $fillable = [
         'title',
+        'level',
         'description',
         'image',
+        'thumbnail',
         'tags',
         'has_details',
         'sort_order',
     ];
 
     protected $casts = [
+        'image'       => 'array',
         'tags'        => 'array',
         'has_details' => 'boolean',
         'sort_order'  => 'integer',

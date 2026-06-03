@@ -48,9 +48,8 @@ class ProjectController extends Controller
         $v = Validator::make($request->all(), [
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'image'       => 'required|string',
-            'tags'        => 'array',
-            'has_details' => 'boolean',
+            'image'       => 'nullable',
+            'thumbnail'   => 'nullable',
             'sort_order'  => 'integer',
         ]);
 
@@ -60,17 +59,60 @@ class ProjectController extends Controller
 
         DB::beginTransaction();
         try {
+            $imagePaths = [];
+            $existingImages = $request->input('existingImages', []);
+            if (is_string($existingImages)) {
+                $existingImages = json_decode($existingImages, true) ?? [];
+            }
+            $imagePaths = array_merge($imagePaths, $existingImages);
+
+            if ($request->hasFile('imageFiles')) {
+                foreach ($request->file('imageFiles') as $file) {
+                    $imagePaths[] = '/storage/' . $file->store('projects', 'public');
+                }
+            }
+            
+            $imagePaths = array_slice($imagePaths, 0, 7);
+
+            $thumbnailPath = $request->input('thumbnail');
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = '/storage/' . $request->file('thumbnail')->store('projects', 'public');
+            }
+
+            $tags = $request->input('tags', []);
+            if (is_string($tags)) {
+                $tags = json_decode($tags, true) ?? [];
+            }
+
+            $hasDetails = $request->input('has_details', false);
+            if (is_string($hasDetails)) {
+                $hasDetails = filter_var($hasDetails, FILTER_VALIDATE_BOOLEAN);
+            }
+
             $project = Project::create([
                 'title'       => $request->title,
                 'description' => $request->description,
-                'image'       => $request->image,
-                'tags'        => $request->input('tags', []),
-                'has_details' => $request->input('has_details', false),
+                'image'       => empty($imagePaths) ? [] : $imagePaths,
+                'thumbnail'   => $thumbnailPath,
+                'tags'        => $tags,
+                'has_details' => $hasDetails,
                 'sort_order'  => $request->input('sort_order', Project::max('sort_order') + 1),
             ]);
 
-            if ($request->has('detailData')) {
-                $project->detail()->create($this->detailPayload($request->detailData));
+            $detailData = $request->input('detailData');
+            if (is_string($detailData)) {
+                $detailData = json_decode($detailData, true);
+            }
+
+            if ($request->hasFile('galleryFiles')) {
+                $detailData['gallery'] = $detailData['gallery'] ?? [];
+                foreach ($request->file('galleryFiles') as $file) {
+                    $detailData['gallery'][] = '/storage/' . $file->store('projects', 'public');
+                }
+            }
+
+            if ($detailData) {
+                $project->detail()->create($this->detailPayload($detailData));
             }
 
             DB::commit();
@@ -91,21 +133,70 @@ class ProjectController extends Controller
 
         DB::beginTransaction();
         try {
-            $project->update(array_filter([
+            $updateData = [
                 'title'       => $request->title,
                 'description' => $request->description,
-                'image'       => $request->image,
-                'tags'        => $request->tags,
-                'has_details' => $request->has_details,
                 'sort_order'  => $request->sort_order,
-            ], fn ($v) => $v !== null));
+            ];
+
+            $imagePaths = [];
+            $hasImageUpdate = false;
+
+            if ($request->has('existingImages')) {
+                $hasImageUpdate = true;
+                $existingImages = $request->input('existingImages');
+                $imagePaths = is_string($existingImages) ? (json_decode($existingImages, true) ?? []) : $existingImages;
+            }
+
+            if ($request->hasFile('imageFiles')) {
+                $hasImageUpdate = true;
+                foreach ($request->file('imageFiles') as $file) {
+                    $imagePaths[] = '/storage/' . $file->store('projects', 'public');
+                }
+            }
+
+            if ($hasImageUpdate) {
+                $updateData['image'] = array_slice($imagePaths, 0, 7);
+            }
+
+            if ($request->hasFile('thumbnail')) {
+                $updateData['thumbnail'] = '/storage/' . $request->file('thumbnail')->store('projects', 'public');
+            } elseif ($request->has('thumbnail')) { // allow nulling out
+                $updateData['thumbnail'] = $request->thumbnail;
+            }
+
+            if ($request->has('tags')) {
+                $tags = $request->tags;
+                $updateData['tags'] = is_string($tags) ? (json_decode($tags, true) ?? []) : $tags;
+            }
+
+            if ($request->has('has_details')) {
+                $hasDetails = $request->has_details;
+                $updateData['has_details'] = is_string($hasDetails) ? filter_var($hasDetails, FILTER_VALIDATE_BOOLEAN) : $hasDetails;
+            }
+
+            $project->update(array_filter($updateData, fn ($v) => $v !== null));
 
             if ($request->has('detailData')) {
-                $payload = $this->detailPayload($request->detailData);
-                if ($project->detail) {
-                    $project->detail->update($payload);
-                } else {
-                    $project->detail()->create($payload);
+                $detailData = $request->detailData;
+                if (is_string($detailData)) {
+                    $detailData = json_decode($detailData, true);
+                }
+
+                if ($request->hasFile('galleryFiles')) {
+                    $detailData['gallery'] = $detailData['gallery'] ?? [];
+                    foreach ($request->file('galleryFiles') as $file) {
+                        $detailData['gallery'][] = '/storage/' . $file->store('projects', 'public');
+                    }
+                }
+
+                if ($detailData) {
+                    $payload = $this->detailPayload($detailData);
+                    if ($project->detail) {
+                        $project->detail->update($payload);
+                    } else {
+                        $project->detail()->create($payload);
+                    }
                 }
             }
 
@@ -152,8 +243,10 @@ class ProjectController extends Controller
         return [
             'id'          => $p->id,
             'title'       => $p->title,
+            'level'       => $p->level,
             'description' => $p->description,
             'image'       => $p->image,
+            'thumbnail'   => $p->thumbnail,
             'tags'        => $p->tags,
             'hasDetails'  => $p->has_details,
             'sort_order'  => $p->sort_order,

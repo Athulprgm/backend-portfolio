@@ -15,6 +15,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 1,
                     'title'       => 'Exam Hall Seating Arrangement System',
+                    'level'       => 'Beginner',
                     'description' => 'An automated system to manage exam hall seating, schedules, and notifications. Replaces manual processes with a centralized database and role-based access for admins, teachers, and students.',
                     'image'       => '/project-img/exam-hall.png',
                     'tags'        => ['Python', 'Django', 'MySQL', 'Flutter', 'Web App'],
@@ -66,6 +67,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 2,
                     'title'       => 'Velora Handmade',
+                    'level'       => 'Intermediate',
                     'description' => 'A premium e-commerce platform for handmade crochet creations featuring dynamic delivery pricing, GPS location detection, and direct WhatsApp checkout.',
                     'image'       => '/web-development-programming-and-code-testing-ui-concept-with-laptop-displaying-futuristic.webp',
                     'tags'        => ['React', 'Zustand', 'Tailwind CSS', 'Geoapify'],
@@ -113,6 +115,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 4,
                     'title'       => 'ExamPro AI',
+                    'level'       => 'Advanced',
                     'description' => 'Advanced multi-tenant MERN application leveraging AI algorithms for optimized exam seat allocation, invigilation scheduling, and digital campus navigation.',
                     'image'       => '/New folder/Screenshot 2026-02-10 143102.png',
                     'tags'        => ['MERN Stack', 'AI Algorithm', 'React', 'Node.js'],
@@ -174,6 +177,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 5,
                     'title'       => 'Kerala-One',
+                    'level'       => 'Intermediate',
                     'description' => 'A comprehensive full-stack web application designed to showcase the development, history, and impact of the Kerala Government.',
                     'image'       => '/project-img/jana-vikasam-5.png',
                     'tags'        => ['React', 'Laravel', 'Vite', 'Tailwind CSS'],
@@ -227,6 +231,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 6,
                     'title'       => 'IntelResolve',
+                    'level'       => 'Advanced',
                     'description' => 'A comprehensive civic-technology platform designed for complaint management and criminal identity warning, bridging the gap between citizens, departments, and law enforcement.',
                     'image'       => '/project-img/intelresolve-hero.png',
                     'tags'        => ['MERN Stack', 'React', 'Node.js', 'MongoDB', 'Civic Tech'],
@@ -281,6 +286,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 7,
                     'title'       => 'NextGen AI Resume Analyser',
+                    'level'       => 'Advanced',
                     'description' => 'A full-stack web application designed to bridge the gap between job seekers and employers using AI and PDF extraction technologies.',
                     'image'       => '/web-development-programming-and-code-testing-ui-concept-with-laptop-displaying-futuristic.webp',
                     'tags'        => ['MERN Stack', 'React', 'AI', 'PDF Parsing'],
@@ -328,6 +334,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 8,
                     'title'       => 'Digital Library (LibGo)',
+                    'level'       => 'Beginner',
                     'description' => 'A full-stack Digital Library management system with role-based access, real-time request handling, and automated email notifications.',
                     'image'       => '/web-development-programming-and-code-testing-ui-concept-with-laptop-displaying-futuristic.webp',
                     'tags'        => ['MERN Stack', 'React', 'Socket.io', 'Library'],
@@ -375,6 +382,7 @@ class ProjectSeeder extends Seeder
                 'project' => [
                     'id'          => 9,
                     'title'       => 'Gurukripa Builders',
+                    'level'       => 'Advanced',
                     'description' => 'A modern, high-performance web application designed for a construction company, featuring dynamic 3D elements and smooth animations.',
                     'image'       => '/web-development-programming-and-code-testing-ui-concept-with-laptop-displaying-futuristic.webp',
                     'tags'        => ['React', 'Three.js', 'Framer Motion', 'Vite'],
