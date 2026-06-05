@@ -18,15 +18,12 @@ class Project extends Model
         'sort_order',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'has_details' => 'boolean',
-            'sort_order'  => 'integer',
-            'image'       => 'array',
-            'tags'        => 'array',
-        ];
-    }
+    protected $casts = [
+        'has_details' => 'boolean',
+        'sort_order'  => 'integer',
+        'image'       => 'array',
+        'tags'        => 'array',
+    ];
 
 
     public function detail(): HasOne
