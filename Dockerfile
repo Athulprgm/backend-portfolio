@@ -15,6 +15,9 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+# Custom PHP limits (upload_max_filesize, post_max_size, etc.)
+COPY php.ini /usr/local/etc/php/conf.d/portfolio.ini
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 RUN a2enmod rewrite

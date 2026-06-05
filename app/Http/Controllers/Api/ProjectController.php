@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectDetail;
+use App\Services\CloudinaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -76,15 +78,15 @@ class ProjectController extends Controller
 
             if ($request->hasFile('imageFiles')) {
                 foreach ($request->file('imageFiles') as $file) {
-                    $imagePaths[] = '/storage/' . $file->store('projects', 'public');
+                    $imagePaths[] = $this->uploadFile($file);
                 }
             }
-            
+
             $imagePaths = array_slice($imagePaths, 0, 7);
 
             $thumbnailPath = $request->input('thumbnail');
             if ($request->hasFile('thumbnail')) {
-                $thumbnailPath = '/storage/' . $request->file('thumbnail')->store('projects', 'public');
+                $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
             }
 
             $tags = $request->input('tags', []);
@@ -115,7 +117,7 @@ class ProjectController extends Controller
             if ($request->hasFile('galleryFiles')) {
                 $detailData['gallery'] = $detailData['gallery'] ?? [];
                 foreach ($request->file('galleryFiles') as $file) {
-                    $detailData['gallery'][] = '/storage/' . $file->store('projects', 'public');
+                    $detailData['gallery'][] = $this->uploadFile($file);
                 }
             }
 
@@ -177,7 +179,7 @@ class ProjectController extends Controller
             if ($request->hasFile('imageFiles')) {
                 $hasImageUpdate = true;
                 foreach ($request->file('imageFiles') as $file) {
-                    $imagePaths[] = '/storage/' . $file->store('projects', 'public');
+                    $imagePaths[] = $this->uploadFile($file);
                 }
             }
 
@@ -186,7 +188,7 @@ class ProjectController extends Controller
             }
 
             if ($request->hasFile('thumbnail')) {
-                $updateData['thumbnail'] = '/storage/' . $request->file('thumbnail')->store('projects', 'public');
+                $updateData['thumbnail'] = $this->uploadFile($request->file('thumbnail'));
             } elseif ($request->has('thumbnail')) { // allow nulling out
                 $updateData['thumbnail'] = $request->thumbnail;
             }
@@ -212,7 +214,7 @@ class ProjectController extends Controller
                 if ($request->hasFile('galleryFiles')) {
                     $detailData['gallery'] = $detailData['gallery'] ?? [];
                     foreach ($request->file('galleryFiles') as $file) {
-                        $detailData['gallery'][] = '/storage/' . $file->store('projects', 'public');
+                        $detailData['gallery'][] = $this->uploadFile($file);
                     }
                 }
 
@@ -325,5 +327,22 @@ class ProjectController extends Controller
             'repo_url'      => $d['repoUrl']      ?? null,
             'live_url'      => $d['liveUrl']      ?? null,
         ];
+    }
+
+    /**
+     * Upload a file to Cloudinary (production) or local disk (dev fallback).
+     * Returns a persistent public URL.
+     */
+    private function uploadFile(UploadedFile $file): string
+    {
+        $cloudName = config('services.cloudinary.cloud_name');
+
+        if ($cloudName) {
+            // Cloudinary — persistent CDN storage
+            return (new CloudinaryService())->upload($file, 'portfolio/projects');
+        }
+
+        // Fallback: local disk (dev only — ephemeral on Render)
+        return '/storage/' . $file->store('projects', 'public');
     }
 }
