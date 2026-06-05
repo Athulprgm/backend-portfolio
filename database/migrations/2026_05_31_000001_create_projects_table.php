@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->string('image');
+            $table->jsonb('image');
             $table->jsonb('tags')->default('[]');
             $table->boolean('has_details')->default(false);
             $table->integer('sort_order')->default(0);
