@@ -23,18 +23,11 @@ class Project extends Model
         return [
             'has_details' => 'boolean',
             'sort_order'  => 'integer',
+            'image'       => 'array',
+            'tags'        => 'array',
         ];
     }
 
-    public function getImageAttribute($value)
-    {
-        return $value ? json_decode($value, true) : [];
-    }
-
-    public function getTagsAttribute($value)
-    {
-        return $value ? json_decode($value, true) : [];
-    }
 
     public function detail(): HasOne
     {

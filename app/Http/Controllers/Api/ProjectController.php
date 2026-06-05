@@ -100,9 +100,9 @@ class ProjectController extends Controller
             $project = Project::create([
                 'title'       => $request->title,
                 'description' => $request->description,
-                'image'       => json_encode(empty($imagePaths) ? [] : $imagePaths),
+                'image'       => empty($imagePaths) ? [] : $imagePaths,
                 'thumbnail'   => $thumbnailPath,
-                'tags'        => json_encode($tags),
+                'tags'        => $tags,
                 'has_details' => $hasDetails,
                 'sort_order'  => $request->input('sort_order', Project::max('sort_order') + 1),
             ]);
@@ -127,7 +127,10 @@ class ProjectController extends Controller
             return response()->json($this->fullShape($project->load('detail')), 201);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            $debug = config('app.debug')
+                ? ['class' => get_class($e), 'file' => $e->getFile(), 'line' => $e->getLine(), 'trace' => $e->getTraceAsString()]
+                : [];
+            return response()->json(['error' => $e->getMessage(), ...$debug], 500);
         }
     }
 
@@ -179,7 +182,7 @@ class ProjectController extends Controller
             }
 
             if ($hasImageUpdate) {
-                $updateData['image'] = json_encode(array_slice($imagePaths, 0, 7));
+                $updateData['image'] = array_slice($imagePaths, 0, 7);
             }
 
             if ($request->hasFile('thumbnail')) {
@@ -190,7 +193,7 @@ class ProjectController extends Controller
 
             if ($request->has('tags')) {
                 $tags = $request->tags;
-                $updateData['tags'] = json_encode(is_string($tags) ? (json_decode($tags, true) ?? []) : $tags);
+                $updateData['tags'] = is_string($tags) ? (json_decode($tags, true) ?? []) : $tags;
             }
 
             if ($request->has('has_details')) {
@@ -227,7 +230,10 @@ class ProjectController extends Controller
             return response()->json($this->fullShape($project->fresh('detail')));
         } catch (\Throwable $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            $debug = config('app.debug')
+                ? ['class' => get_class($e), 'file' => $e->getFile(), 'line' => $e->getLine()]
+                : [];
+            return response()->json(['error' => $e->getMessage(), ...$debug], 500);
         }
     }
 

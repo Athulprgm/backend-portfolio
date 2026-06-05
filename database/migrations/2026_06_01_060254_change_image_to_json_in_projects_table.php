@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
         // Wrap existing single image strings into a json array
         DB::statement('ALTER TABLE projects ALTER COLUMN image TYPE jsonb USING json_build_array(image)::jsonb');
     }
@@ -20,6 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
         // Unpack the first element of the json array back into a string
         DB::statement("ALTER TABLE projects ALTER COLUMN image TYPE varchar USING image->>0");
     }
