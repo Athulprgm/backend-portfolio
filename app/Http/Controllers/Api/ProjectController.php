@@ -329,12 +329,12 @@ class ProjectController extends Controller
         ];
     }
 
-    /**
-     * Upload a file to Cloudinary (production) or local disk (dev fallback).
-     * Returns a persistent public URL.
-     */
     private function uploadFile(UploadedFile $file): string
     {
+        if (!$file->isValid()) {
+            throw new \Exception("Uploaded file is invalid: " . $file->getErrorMessage());
+        }
+
         $cloudName = config('services.cloudinary.cloud_name');
 
         if ($cloudName) {
