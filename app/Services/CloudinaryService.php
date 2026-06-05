@@ -2,14 +2,12 @@
 
 namespace App\Services;
 
-use Cloudinary\Cloudinary;
+use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
 use Illuminate\Http\UploadedFile;
 
 class CloudinaryService
 {
-    private Cloudinary $cloudinary;
-
     public function __construct()
     {
         Configuration::instance([
@@ -20,8 +18,6 @@ class CloudinaryService
             ],
             'url' => ['secure' => true],
         ]);
-
-        $this->cloudinary = new Cloudinary();
     }
 
     /**
@@ -29,7 +25,7 @@ class CloudinaryService
      */
     public function upload(UploadedFile $file, string $folder = 'portfolio'): string
     {
-        $result = $this->cloudinary->uploadApi()->upload(
+        $result = (new UploadApi())->upload(
             $file->getRealPath(),
             [
                 'folder'          => $folder,
@@ -47,7 +43,7 @@ class CloudinaryService
      */
     public function delete(string $publicId): void
     {
-        $this->cloudinary->uploadApi()->destroy($publicId);
+        (new UploadApi())->destroy($publicId);
     }
 
     /**
